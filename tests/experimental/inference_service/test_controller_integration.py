@@ -117,8 +117,6 @@ def gateway_controller(sglang_server, local_scheduler, model_path, tmp_path):
     """Create and initialize a GatewayInferenceController, yield it, then destroy."""
     if not has_gpu():
         pytest.skip("GPU required")
-
-    from areal.api.alloc_mode import AllocationMode
     from areal.api.cli_args import SchedulingSpec
     from areal.api.io_struct import LocalInfServerInfo
     from areal.experimental.inference_service.controller.config import (
@@ -154,7 +152,6 @@ def gateway_controller(sglang_server, local_scheduler, model_path, tmp_path):
 
     ctrl.initialize(
         role="rollout",
-        alloc_mode=AllocationMode.from_str("sglang:d1"),
         server_infos=[server_info],
     )
 
@@ -567,7 +564,6 @@ def gateway_controller_full_init(local_scheduler, model_path, tmp_path):
     if not has_gpu():
         pytest.skip("GPU required")
 
-    from areal.api.alloc_mode import AllocationMode
     from areal.api.cli_args import SchedulingSpec
     from areal.experimental.inference_service.controller.config import (
         GatewayControllerConfig,
@@ -579,6 +575,7 @@ def gateway_controller_full_init(local_scheduler, model_path, tmp_path):
     config = GatewayControllerConfig(
         tokenizer_path=model_path,
         model_path=model_path,
+        backend="sglang:d1",
         scheduling_spec=(
             SchedulingSpec(
                 gpu=1, cmd="python -m areal.experimental.inference_service.guard"
@@ -590,7 +587,6 @@ def gateway_controller_full_init(local_scheduler, model_path, tmp_path):
         setup_timeout=300.0,
     )
 
-    alloc_mode = AllocationMode.from_str("sglang:d1")
     server_args = {
         "skip_tokenizer_init": True,
         "mem_fraction_static": 0.3,
@@ -599,7 +595,6 @@ def gateway_controller_full_init(local_scheduler, model_path, tmp_path):
     ctrl = GatewayInferenceController(config=config, scheduler=local_scheduler)
     ctrl.initialize(
         role="rollout-full",
-        alloc_mode=alloc_mode,
         server_args=server_args,
     )
 
